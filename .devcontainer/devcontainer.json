@@ -1,0 +1,34 @@
+{
+    "name": "Armdax9OS Development",
+    "updateRemoteUserUID": true,
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": {
+            "USERNAME": "weqasds",
+            "USER_UID": "1000",
+            "USER_GID": "1000"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+            "ms-vscode.cpptools",
+            "ms-vscode.cmake-tools",
+            "marus25.cortex-debug",
+            "dan-c-underwood.arm"
+            ]
+        }
+    },
+    "mounts": [
+        "source=/dev/bus/usb,target=/dev/bus/usb,type=bind"
+    ],
+    
+    "remoteUser": "weqasds",
+    "runArgs": [
+        "--privileged",
+        "--cap-add=SYS_PTRACE",
+        "--security-opt",
+        "seccomp=unconfined"
+    ],
+    "postCreateCommand": "sudo ln -s /home/weqasds/cross-gcc/bin/arm-none-eabi-* /usr/local/bin/"
+}
