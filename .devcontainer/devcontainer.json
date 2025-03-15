@@ -19,16 +19,5 @@
             ]
         }
     },
-    "mounts": [
-        "source=/dev/bus/usb,target=/dev/bus/usb,type=bind"
-    ],
-    
-    "remoteUser": "weqasds",
-    "runArgs": [
-        "--privileged",
-        "--cap-add=SYS_PTRACE",
-        "--security-opt",
-        "seccomp=unconfined"
-    ],
-    "postCreateCommand": "sudo ln -s /home/weqasds/cross-gcc/bin/arm-none-eabi-* /usr/local/bin/"
+    "remoteUser": "weqasds"
 }

@@ -1,55 +1,103 @@
-# 基础镜像选择Ubuntu Jammy（LTS版本）
-FROM ubuntu:jammy AS builder
-ARG DEBIAN_FRONTEND=noninteractive
+# 使用 Ubuntu Jammy 作为基础镜像
+FROM ubuntu:jammy
 
-# 安装基础工具链
+# 设置非交互式安装
+ENV DEBIAN_FRONTEND=noninteractive
+# 设置gcc-none-eabi安装目录
+ENV PREFIX=/home/weqasds/gcc-arm-none-eabi-12.4
+ENV PATH="/home/weqasds/gcc-arm-none-eabi-12.4/bin:$PATH"
+# 安装基础工具链和依赖
 RUN apt-get update && apt-get install -y \
-    qemu-system-arm gdb-multiarch cmake ninja-build git wget \
-    flex bison dejagnu texinfo python3-dev libgmp-dev libmpfr-dev \
-    libmpc-dev libisl-dev zlib1g-dev libexpat1-dev libboost-all-dev \
-    qemu-user-static binfmt-support sudo && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# 配置多架构支持
-RUN docker-apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-
-# 创建开发者用户
-RUN useradd -m -u 1000 -s /bin/bash weqasds && \
-    echo "weqasds ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-# 下载并编译ARM交叉编译器
+    qemu-system-arm \
+    qemu-user-static \
+    gdb \
+    cmake \
+    git \
+    wget \
+    build-essential \
+    flex \
+    bison \
+    texinfo \
+    libgmp-dev \
+    libmpfr-dev \
+    libmpc-dev \
+    libisl-dev \
+    zlib1g-dev \
+    libexpat-dev \
+    dejagnu \
+    python3 \
+    sudo \
+    && rm -rf /var/lib/apt/lists/*
+RUN groupadd developer
+# 创建开发用户
+RUN useradd -u 1000 -g developer -m weqasds && \
+    echo "weqasds ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+    chown -R :developer /home/weqasds && \
+    mkdir /workspaces && \
+    chown -R :developer /workspaces
+# 切换用户
 USER weqasds
 WORKDIR /home/weqasds
-RUN git clone --depth 1 --branch releases/gcc-12.4.0 https://gcc.gnu.org/git/gcc.git gcc-src && \
-    cd gcc-src && \
-    ./contrib/download_prerequisites && \
-    mkdir ../gcc-build && cd ../gcc-build && \
-    ../gcc-src/configure --target=arm-none-eabi \
-        --prefix=/home/weqasds/cross-gcc \
-        --enable-languages=c,c++ \
+
+# 下载并编译 Binutils
+RUN wget https://ftp.gnu.org/gnu/binutils/binutils-2.40.tar.xz 
+RUN tar xf binutils-2.40.tar.xz && \
+    mkdir binutils-build && cd binutils-build && \
+    ../binutils-2.40/configure \
+        --target=arm-none-eabi \
+        --prefix=/home/weqasds/gcc-arm-none-eabi-12.4 \
         --disable-nls \
-        --disable-libssp \
-        --with-arch=armv8-a \
-        --with-fpu=neon \
-        --with-float=hard && \
+        --enable-lto \
+        --with-sysroot \
+        --with-system-zlib \
+        --disable-werror && \
     make -j$(nproc) && \
-    make install
+    make install && \
+    cd .. && rm -rf binutils-build binutils-2.40*
 
-# 下载文档资料
-RUN mkdir -p documentation && \
-    wget -P documentation https://developer.arm.com/documentation/ddi0487/latest/ARM-Architecture-Reference-Manual-ARMv8-A.pdf && \
-    wget -P documentation https://raw.githubusercontent.com/raspberrypi/documentation/master/configuration/boot_config.md && \
-    wget -P documentation https://gcc.gnu.org/onlinedocs/gcc-12.4.0/gcc.pdf && \
-    wget -P documentation https://github.com/raspberrypi/firmware/raw/master/boot/overlays/README
+# 下载并编译 arm-none-eabi-gcc
+RUN wget https://ftp.gnu.org/gnu/gcc/gcc-12.4.0/gcc-12.4.0.tar.xz
+# RUN tar xf gcc-12.4.0.tar.xz && \
+#     mkdir gcc-build && cd gcc-build && \
+#     ../gcc-12.4.0/configure \
+#         --target=arm-none-eabi \  
+#         --prefix=/home/weqasds/gcc-arm-none-eabi-12.4 \
+#         --enable-languages=c,c++ \
+#         --disable-nls \
+#         --disable-shared \
+#         --disable-werror \
+#         --without-headers && \
+#     make -j$(nproc) all-gcc && \
+#     make all-target-libgcc &&\
+#     make install-gcc && \
+#     make install-target-libgcc \
+#     cd .. && rm -rf gcc-build gcc-12.4.0*
 
-# 环境变量配置
-ENV PATH="/home/weqasds/cross-gcc/bin:${PATH}"
-ENV ARM_ARCH=armv8-a
-ENV RPI4_SYSROOT=/home/weqasds/rpi4-sysroot
+# # 安装树莓派工具链
+# RUN git clone https://github.com/raspberrypi/tools rpi-tools
 
-# 创建工作目录并设置权限
-RUN mkdir -p /workspace/Armdax9OS ${RPI4_SYSROOT} && \
-    sudo chown -R weqasds:weqasds /workspace
+# 安装 arm-linux-eabi 工具链
+RUN sudo apt-get update && sudo apt-get install -y \
+    gcc-arm-linux-gnueabihf \
+    g++-arm-linux-gnueabihf
 
-# 最终工作目录设置
-WORKDIR /workspace/Armdax9OS
+# 创建文档目录并下载参考资料
+RUN mkdir -p documentation && cd documentation && \
+    mkdir arm gcc raspberrypi && \
+    # ARM 文档
+    wget -O arm/ARMv8-A-Architecture-Reference-Manual.pdf \
+    https://developer.arm.com/documentation/ddi0487/latest && \
+    # GCC 文档
+    wget -O gcc/GCC-Linking-Scripts.pdf \
+    https://sourceware.org/binutils/docs-2.40/ld.pdf && \
+    # 树莓派文档
+    git clone --depth 1 https://github.com/raspberrypi/documentation raspberrypi/pi4-docs
+
+# 设置环境变量
+ENV PATH="/home/weqasds/gcc-arm-none-eabi-12.4/bin:\
+/home/weqasds/rpi-tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin:\
+${PATH}"
+
+
+# 设置工作目录
+WORKDIR /workspaces
