@@ -1,0 +1,17 @@
+{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "ArmDax9OS",
+            "displayName": "GCC 12.4.0 arm-none-eabi",
+            "description": "正在使用编译器: C = /home/weqasds/gcc-arm-none-eabi-12.4/bin/arm-none-eabi-gcc, CXX = /home/weqasds/gcc-arm-none-eabi-12.4/bin/arm-none-eabi-g++",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "/home/weqasds/gcc-arm-none-eabi-12.4/bin/arm-none-eabi-gcc",
+                "CMAKE_CXX_COMPILER": "/home/weqasds/gcc-arm-none-eabi-12.4/bin/arm-none-eabi-g++",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ]
+}

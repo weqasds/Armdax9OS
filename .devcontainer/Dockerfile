@@ -44,13 +44,14 @@ RUN useradd -u 1000 -g developer -m weqasds && \
 USER weqasds
 #设置编译器下载目录
 WORKDIR /home/weqasds
-COPY ./src/src/gcc-12.4.0.tar.xz /home/weqasds/
-COPY ./src/binutils-2.40.tar.xz /home/weqasds/
+COPY src/* /home/weqasds
+# 将宿主机 src/ 目录下的文件复制到镜像的当前目录
 # 下载并编译 Binutils
 RUN if [ -f ./binutils-2.40.tar.xz ];then \
-    echo "存在二进制工具跳过下载。"\
+    echo "存在二进制工具跳过下载。";\
     else \
-        wget https://ftp.gnu.org/gnu/binutils/binutils-2.40.tar.xz 
+        wget https://ftp.gnu.org/gnu/binutils/binutils-2.40.tar.xz; \
+    fi
 RUN tar xf binutils-2.40.tar.xz && \
     mkdir binutils-build && cd binutils-build && \
     ../binutils-2.40/configure \
@@ -67,9 +68,10 @@ RUN tar xf binutils-2.40.tar.xz && \
 
 # 下载并编译 arm-none-eabi-gcc
 RUN if [ -f ./src/gcc-12.4.0.tar.xz ];then \
-    echo "存在编译器代码跳过下载。"\
+    echo "存在编译器代码跳过下载。";\
     else \
-    wget https://ftp.gnu.org/gnu/gcc/gcc-12.4.0/gcc-12.4.0.tar.xz
+    wget https://ftp.gnu.org/gnu/gcc/gcc-12.4.0/gcc-12.4.0.tar.xz; \
+    fi
 # RUN tar xf gcc-12.4.0.tar.xz && \
 #     mkdir gcc-build && cd gcc-build && \
 #     ../gcc-12.4.0/configure \

@@ -1,0 +1,9 @@
+/vscode/vscode-server/bin/linux-x64/ddc367ed5c8936efe395cffeec279b04ffd7db78/bin/remote-cli
+:/home/weqasds/gcc-arm-none-eabi-12.4/bin
+:/home/weqasds/rpi-tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin
+:/usr/local/sbin:/usr/local/bin:/usr/sbin
+:/usr/bin
+:/sbin
+:/bin
+:/home/weqasds/.vscode-server/data/User/globalStorage/github.copilot-chat/debugCommand
+
