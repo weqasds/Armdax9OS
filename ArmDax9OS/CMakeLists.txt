@@ -11,6 +11,7 @@ set(CMAKE_ASM_COMPILER ${TOOLCHAIN_PREFIX}gcc)
 set(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}objcopy)
 
 # 更新包含目录（匹配项目结构）
+# 后边子目录其他头文件使用时不需要再mm/xx.h 
 include_directories(
     include
     include/fs
