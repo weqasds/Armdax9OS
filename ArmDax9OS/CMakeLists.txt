@@ -1,6 +1,19 @@
 cmake_minimum_required(VERSION 3.17)
 project(ArmDax9OS)
 
+#配置编译参数
+set(PLATFORM "arm64" CACHE STRING "Target platform: [arm64|raspberry|qemu_arm64]")
+# 根据用户选择的平台设置 CONFIG_LOAD_OFFSET 的值
+if(PLATFORM STREQUAL "arm64")
+    set(CONFIG_LOAD_OFFSET 1)
+elseif(PLATFORM STREQUAL "raspberry")
+    set(CONFIG_LOAD_OFFSET 2)
+elseif(PLATFORM STREQUAL "qemu_arm64")
+    set(CONFIG_LOAD_OFFSET 3)
+else()
+    message(FATAL_ERROR "Unsupported platform: ${PLATFORM}")
+endif()
+
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR ARM)
 #设置工具链前缀
@@ -26,15 +39,11 @@ include_directories(
     user
 )
 
-# 更新源代码收集模式（支持子目录递归）
-file(GLOB_RECURSE SOURCES
-    keneral/**/*.c      # 递归keneral所有子目录
-    libs/**/*.c        # 递归libs所有子目录
-    arch/arm/*.c       # ARM架构C代码
-    arch/arm/*.S       # ARM架构汇编
-    arch/*.S           # 顶层start.S汇编文件
-    arch/**/*.ld       # arch下的所有链接脚本
-)
+# #添加编译的子目录
+add_subdirectory(${CMAKE_SOURCE_DIR}/arch)
+add_subdirectory(${CMAKE_SOURCE_DIR}/include)
+add_subdirectory(${CMAKE_SOURCE_DIR}/keneral)
+add_subdirectory(${CMAKE_SOURCE_DIR}/libs)
 
 add_executable(${PROJECT_NAME}
     ${SOURCES}

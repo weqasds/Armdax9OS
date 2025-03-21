@@ -1,3 +1,14 @@
 {
-    "cmake.sourceDirectory": "/workspaces/Armdax9OS/ArmDax9OS"
+    "cmake.sourceDirectory": "/workspaces/Armdax9OS/ArmDax9OS",
+    "C_Cpp.default.compilerPath": "/home/weqasds/gcc-arm-none-eabi-12.4/bin/arm-none-eabi-gcc",
+    "C_Cpp.default.includePath": [
+        "${default}",
+    ],
+    "C_Cpp.intelliSenseEngine": "default",
+    "files.associations": {
+        "*.S": "arm",
+        "mmu.h": "c",
+        "asm.h": "c",
+        "stdint.h": "c"
+    }
 }

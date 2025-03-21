@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "ARM GCC",
+            "compilerPath": "/home/weqasds/gcc-arm-none-eabi-12.4/bin/arm-none-eabi-gcc",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/ArmDax9OS/**"
+            ],
+            "intelliSenseMode": "${default}",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "defines": [
+                "__ARM_ARCH=8",
+                "__GNUC__",
+                "CONFIG_LOAD_OFFSET"
+            ]
+        }
+    ],
+    "version": 4
+}
