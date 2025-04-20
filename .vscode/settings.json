@@ -7,8 +7,19 @@
     "C_Cpp.intelliSenseEngine": "default",
     "files.associations": {
         "*.S": "arm",
+        "*.lds": "linkerscript",
+        "*.ldx": "linkerscript",
         "mmu.h": "c",
         "asm.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "cpuinfo.h": "c",
+        "slab.h": "c",
+        "stdint-gcc.h": "c",
+        "macro.h": "c",
+        "irq.h": "c",
+        "types.h": "c",
+        "stdbool.h": "c",
+        "debug.h": "c",
+        "sync.h": "c"
     }
 }
