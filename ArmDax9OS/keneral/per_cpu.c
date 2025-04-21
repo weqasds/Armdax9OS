@@ -1,4 +1,3 @@
-#pragma once
 #include <common/cpuinfo.h>
 #include <slab.h>
 

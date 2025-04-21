@@ -1,30 +1,33 @@
 #include <common/asm.h>
 #include <common/vars.h>
 
-.section ".text.boot"
-ASM_FUNC_BEGIN(_start)
+ASM_FUNC_BEGIN(start_kernel)
     // 设置栈指针(使用KBASE作为基地址)
-    ldr x0, =KBASE
-    mov sp, x0
+    ldr x2, =kernel_stack
+    add x2, x2, KERNEL_STACK_SIZE
+    mov sp, x2
     
-    // 设置栈大小并保持16字节对齐
-    ldr x1, =KERNEL_STACK_SIZE
-    add sp, sp, x1
-    and sp, sp, #~STACK_ALIGNMENT
+    str x0, [sp,#-8]!
+    mov x2, #0
+
+    msr ttbr0_el1, x2
+    isb
     
+    bl flush_tlb_all
+
+    mov x3, #0
     // 跳转到main函数
+    msr TPIDR_EL1, x3
+    ldr x0, [sp], #8
     bl main
     
-    // 主核进入空闲循环
-1:  wfe
-    b 1b
-ASM_FUNC_END(_start)
+ASM_FUNC_END(start_kernel)
 
 // 从核启动入口
 ASM_FUNC_BEGIN(secondary_entry)
     // 设置从核栈(比主核栈小一些)
-    ldr x0, =KBASE
-    ldr x1, =IDLE_STACK_SIZE
+    msr TPIDR_EL1, x0
+    mov x1, #KERNEL_STACK_SIZE
     add sp, x0, x1
     and sp, sp, #~STACK_ALIGNMENT
     

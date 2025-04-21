@@ -1,4 +1,10 @@
 #include<common/types.h>
+#include<common/lock.h>
+#include<common/kprintf.h>
+#include<common/types.h> 
+#include <arch/arm/plat/raspi3/machine.h>
+#include<common/vars.h>
+char kernel_stack[PLAT_CPU_NUM][KERNEL_STACK_SIZE];
 
 
 /// @brief 内核启动入口

@@ -3,7 +3,7 @@
 #include <common/lock.h>
 #include <common/macro.h>
 #include <common/list.h>
-
+#include <common/kprintf.h>
 
 //全局slab控制器
 static struct slab_control slab_ctrl;
@@ -35,7 +35,7 @@ void *slab_alloc(u64 size) {
     if (req_order < SLAB_MIN_ORDER) req_order = SLAB_MIN_ORDER;
     if (req_order > SLAB_MAX_ORDER) return NULL;
     
-    spin_lock(&slab_ctrl.lock);
+    spin_lock_acquire(&slab_ctrl.lock);
     
     // 查找合适的内存块
     int curr_order = req_order;
@@ -56,19 +56,48 @@ void *slab_alloc(u64 size) {
                     &slab_ctrl.free_lists[buddy->order - SLAB_MIN_ORDER]);
             }
             
-            spin_unlock(&slab_ctrl.lock);
+            spin_lock_release(&slab_ctrl.lock);
             return (void *)blk;
         }
         curr_order++;
     }
     
-    spin_unlock(&slab_ctrl.lock);
+    spin_lock_release(&slab_ctrl.lock);
     return NULL; // 内存不足
 }
 
 
-void *slab_alloc_nolock(u64 size){
-
+void *slab_alloc_nolock(u64 size) {
+    // 计算所需order
+    int req_order = get_order(size);
+    if (req_order < SLAB_MIN_ORDER) req_order = SLAB_MIN_ORDER;
+    if (req_order > SLAB_MAX_ORDER) return NULL;
+    
+    // 查找合适的内存块
+    int curr_order = req_order;
+    while (curr_order <= SLAB_MAX_ORDER) {
+        if (!list_empty(&slab_ctrl.free_lists[curr_order - SLAB_MIN_ORDER])) {
+            // 找到可用块
+            struct slab_block *blk = list_entry(
+                slab_ctrl.free_lists[curr_order - SLAB_MIN_ORDER].next,
+                struct slab_block, list);
+            list_del(&blk->list);
+            
+            // 如果块太大则分裂
+            while (blk->order > req_order) {
+                blk->order--;
+                struct slab_block *buddy = get_buddy(blk);
+                buddy->order = blk->order;
+                list_add(&buddy->list, 
+                    &slab_ctrl.free_lists[buddy->order - SLAB_MIN_ORDER]);
+            }
+            
+            return (void *)blk;
+        }
+        curr_order++;
+    }
+    
+    return NULL; // 内存不足
 }
 
 // 释放内存块
@@ -76,7 +105,7 @@ void slab_free(void *ptr) {
     if (!ptr) return;
     
     struct slab_block *blk = (struct slab_block *)ptr;
-    spin_lock(&slab_ctrl.lock);
+    spin_lock_acquire(&slab_ctrl.lock);
     
     // 尝试合并伙伴块
     while (blk->order < SLAB_MAX_ORDER) {
@@ -84,7 +113,7 @@ void slab_free(void *ptr) {
         
         // 检查伙伴块是否空闲且同阶
         if (buddy->order != blk->order || 
-            !is_block_free(buddy)) {
+            is_block_free(buddy) == 0) {
             break;
         }
         
@@ -98,7 +127,7 @@ void slab_free(void *ptr) {
     list_add(&blk->list, 
         &slab_ctrl.free_lists[blk->order - SLAB_MIN_ORDER]);
     
-    spin_unlock(&slab_ctrl.lock);
+    spin_lock_release(&slab_ctrl.lock);
 }
 
 // 辅助函数：计算所需order
@@ -125,7 +154,15 @@ static struct slab_block *get_buddy(struct slab_block *blk) {
 }
 
 // 辅助函数：检查块是否空闲
-static bool is_block_free(struct slab_block *blk) {
-    // 实现检查逻辑
-    return true;
+static int is_block_free(struct slab_block *blk) {
+    // 检查块是否在对应阶的空闲链表中
+    struct slab_block *pos;
+    int order = blk->order;
+    
+    for_each_in_list(pos, struct slab_block, list, &slab_ctrl.free_lists[order - SLAB_MIN_ORDER]) {
+        if (pos == blk) {
+            return 1; // 找到匹配块，返回空闲状态
+        }
+    }
+    return 0; // 未找到匹配块
 }

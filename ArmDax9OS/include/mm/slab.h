@@ -34,5 +34,5 @@ void *slab_alloc(u64 size);
 void *slab_alloc_nolock(u64 size);
 //释放slab
 void slab_free(void *ptr);
-static bool is_block_free(struct slab_block *blk);
+static int is_block_free(struct slab_block *blk);
 

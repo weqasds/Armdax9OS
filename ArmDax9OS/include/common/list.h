@@ -41,7 +41,7 @@ static inline void list_del(struct list_head *node)
         node->next->prev = node->prev;
 }
 //判断链表是否为空
-static inline bool list_empty(struct list_head *head)
+static inline int list_empty(struct list_head *head)
 {
         /* When this thing happens, it means someone at the middle of operation
          */
@@ -76,12 +76,12 @@ static inline bool list_empty(struct list_head *head)
 
 static inline void init_hlist_head(struct hlist_head *head)
 {
-    head->next = nullptr;
+    head->next = NULL;
 }
 static inline void init_hlist_node(struct hlist_node *node)
 {
-    node->next = nullptr;
-    node->pprev = nullptr;
+    node->next = NULL;
+    node->pprev = NULL;
 }
 
 static inline void hlist_add(struct hlist_node *new_val, struct hlist_head *head)
@@ -100,7 +100,7 @@ static inline void hlist_del(struct hlist_node *node)
         *node->pprev = node->next;
 }
 
-static inline bool hlist_empty(struct hlist_head *head)
+static inline int hlist_empty(struct hlist_head *head)
 {
         return head->next == NULL;
 }

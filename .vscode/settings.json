@@ -20,6 +20,10 @@
         "types.h": "c",
         "stdbool.h": "c",
         "debug.h": "c",
-        "sync.h": "c"
+        "sync.h": "c",
+        "smp.h": "c",
+        "vars.h": "c",
+        "machine.h": "c",
+        "lock.h": "c"
     }
 }

@@ -1,0 +1,141 @@
+#pragma once
+#include "common/types.h"
+
+/* 内存属性类型 */
+#define MT_DEVICE_nGnRnE  0x0
+#define MT_DEVICE_nGnRE   0x1
+#define MT_DEVICE_GRE     0x2
+#define MT_NORMAL_NC      0x3
+#define MT_NORMAL         0x4
+#define MT_NORMAL_WT      0x5
+
+/* 内存属性索引 */
+#define MAIR_ATTR(attr, idx) ((attr) << ((idx) * 8))
+
+/* 页表属性位 */
+#define PTE_VALID         (1UL << 0)    // 有效位
+#define PTE_TABLE         (1UL << 1)    // 表描述符
+#define PTE_BLOCK         (0UL << 1)    // 块描述符
+#define PTE_AF            (1UL << 10)   // 访问标志
+#define PTE_nG            (1UL << 11)   // 非全局
+#define PTE_PXN           (1UL << 53)   // 特权执行不可
+#define PTE_UXN           (1UL << 54)   // 用户执行不可
+#define PTE_AP_RW         (0UL << 6)    // 读写权限
+#define PTE_AP_RO         (1UL << 7)    // 只读权限
+#define PTE_AP_USER       (1UL << 6)    // 用户可访问
+#define PTE_SH_INNER      (3UL << 8)    // 内部可共享
+#define PTE_SH_OUTER      (2UL << 8)    // 外部可共享
+#define PTE_SH_NONE       (0UL << 8)    // 不可共享
+
+/* 页表层级相关宏 */
+#define PAGE_SHIFT        12
+#define PAGE_SIZE        (1UL << PAGE_SHIFT)
+#define PMD_SHIFT        21
+#define PUD_SHIFT        30
+#define PGDIR_SHIFT      39
+
+#define PTRS_PER_PTE     512
+#define PTRS_PER_PMD     512
+#define PTRS_PER_PUD     512
+#define PTRS_PER_PGD     512
+
+#define PMD_SIZE         (1UL << PMD_SHIFT)
+#define PUD_SIZE         (1UL << PUD_SHIFT)
+#define PGDIR_SIZE       (1UL << PGDIR_SHIFT)
+
+#define PMD_MASK         (~(PMD_SIZE - 1))
+#define PUD_MASK         (~(PUD_SIZE - 1))
+#define PGDIR_MASK       (~(PGDIR_SIZE - 1))
+
+/* 页表索引计算 */
+#define pgd_index(addr)  (((addr) >> PGDIR_SHIFT) & (PTRS_PER_PGD - 1))
+#define pud_index(addr)  (((addr) >> PUD_SHIFT) & (PTRS_PER_PUD - 1))
+#define pmd_index(addr)  (((addr) >> PMD_SHIFT) & (PTRS_PER_PMD - 1))
+#define pte_index(addr)  (((addr) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
+
+/* 页表条目类型 */
+typedef union {
+    struct {
+        u64 valid:1;      // 有效位
+        u64 type:1;       // 0=块, 1=表
+        u64 attr_index:3; // 内存属性索引
+        u64 ns:1;         // 安全状态
+        u64 ap:2;         // 访问权限
+        u64 sh:2;         // 共享属性
+        u64 af:1;         // 访问标志
+        u64 ng:1;         // 非全局
+        u64 res0:18;      // 保留
+        u64 addr:28;      // 物理地址
+        u64 res1:4;       // 保留
+        u64 pxd:1;        // PXN/UXN
+        u64 cont:1;       // 连续条目
+    } table;                   // 表描述符
+
+    struct {
+        u64 valid:1;
+        u64 type:1;
+        u64 attr_index:3;
+        u64 ns:1;
+        u64 ap:2;
+        u64 sh:2;
+        u64 af:1;
+        u64 ng:1;
+        u64 res0:9;
+        u64 addr:28;      // 1GB物理地址
+        u64 res1:4;
+        u64 pxd:1;
+        u64 cont:1;
+    } l1_block;                // 1GB块描述符
+
+    struct {
+        u64 valid:1;
+        u64 type:1;
+        u64 attr_index:3;
+        u64 ns:1;
+        u64 ap:2;
+        u64 sh:2;
+        u64 af:1;
+        u64 ng:1;
+        u64 res0:9;
+        u64 addr:28;      // 2MB物理地址
+        u64 res1:4;
+        u64 pxd:1;
+        u64 cont:1;
+    } l2_block;                // 2MB块描述符
+
+    struct {
+        u64 valid:1;
+        u64 type:1;
+        u64 attr_index:3;
+        u64 ns:1;
+        u64 ap:2;
+        u64 sh:2;
+        u64 af:1;
+        u64 ng:1;
+        u64 res0:9;
+        u64 addr:28;      // 4KB物理地址
+        u64 res1:4;
+        u64 pxd:1;
+        u64 cont:1;
+    } l3_page;                 // 4KB页描述符
+
+    u64 value;
+} pte_t;
+
+/* 页表页结构 */
+typedef struct {
+    pte_t entries[PTRS_PER_PTE];
+} ptp_t;
+
+/* 页表操作函数声明 */
+void set_ttbr0(u64 pgd);
+ptp_t *get_next_ptp(ptp_t *current_ptp, u64 index);
+pte_t *find_pte(u64 vaddr);
+
+int map_4k_page(u64 vaddr, u64 paddr, u64 attr);
+int unmap_4k_page(u64 vaddr);
+int map_2m_page(u64 vaddr, u64 paddr, u64 attr);
+int unmap_2m_page(u64 vaddr);
+
+void set_pte_flags(pte_t *pte, u64 flags);
+void free_page_table(ptp_t *ptp);

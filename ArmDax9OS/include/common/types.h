@@ -11,7 +11,9 @@ typedef int s32;
 typedef short s16;
 typedef signed char s8;
 typedef char bool_;
+/// @brief 物理地址类型
 typedef u64 paddr_t;
+/// @brief 虚拟地址类型
 typedef u64 vaddr_t;
 //原子类型定义
 typedef u32 atomic_t;
