@@ -1,7 +1,7 @@
 #include <common/lock.h>
 #include <common/cpuinfo.h>
 #include <common/debug.h>
-#include <arch/arm/arch/sync.h>
+#include <arch/arm/sync.h>
 #include "lock.h"
 
 /* 自旋锁操作 */

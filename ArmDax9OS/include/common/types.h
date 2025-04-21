@@ -10,7 +10,7 @@ typedef long long s64;
 typedef int s32;
 typedef short s16;
 typedef signed char s8;
-typedef char bool_;
+typedef unsigned char bool_;
 /// @brief 物理地址类型
 typedef u64 paddr_t;
 /// @brief 虚拟地址类型

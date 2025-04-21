@@ -1,7 +1,7 @@
-#include <arch/arm/arch/mm/page_table.h>
+#include <arch/arm/mm/page_table.h>
 #include <common/macro.h>
 #include <mm/slab.h>
-#include <arch/arm/arch/sync.h>
+#include <arch/arm/sync.h>
 #include <common/types.h>
 #include <mm/mm.h>
 #define PAGE_MASK (~(PAGE_SIZE - 1))

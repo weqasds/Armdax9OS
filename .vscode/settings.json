@@ -25,6 +25,10 @@
         "vars.h": "c",
         "machine.h": "c",
         "lock.h": "c",
-        "page_table.h": "c"
+        "page_table.h": "c",
+        "registers.h": "c",
+        "ipi.h": "c",
+        "irq_num.h": "c",
+        "irq_entry.h": "c"
     }
 }
