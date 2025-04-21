@@ -127,8 +127,17 @@ typedef struct {
     pte_t entries[PTRS_PER_PTE];
 } ptp_t;
 
+
 /* 页表操作函数声明 */
-void set_ttbr0(u64 pgd);
+//pgtbl: page table 
+void set_ttbr0_el1(paddr_t pgtbl);
+
+/*未来实现*/
+void set_ttbr1_el1(paddr_t pgtbl);
+void set_ttbr0_el2(paddr_t pgtbl);
+void set_ttbr0_el3(paddr_t pgtbl);
+
+
 ptp_t *get_next_ptp(ptp_t *current_ptp, u64 index);
 pte_t *find_pte(u64 vaddr);
 
@@ -137,5 +146,6 @@ int unmap_4k_page(u64 vaddr);
 int map_2m_page(u64 vaddr, u64 paddr, u64 attr);
 int unmap_2m_page(u64 vaddr);
 
+void set_page_table(paddr_t pgtbl);
 void set_pte_flags(pte_t *pte, u64 flags);
 void free_page_table(ptp_t *ptp);

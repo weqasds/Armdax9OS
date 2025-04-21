@@ -1,10 +1,11 @@
-#include <asm.h>
+#include <common/asm.h>
 
 /*
+ * include/mm/mm.h 
  * void *memset(void *dst, int ch, size_t size)
  * aarch64 NEON optimized memset
  */
-BEGIN_FUNC(memset)
+ASM_FUNC_BEGIN(memset)
     mov     x3, x0          // Save original dst
     and     w1, w1, #0xff   // Clear upper bits of char
     dup     v0.16b, w1      // Fill NEON register
@@ -51,4 +52,4 @@ BEGIN_FUNC(memset)
 .Ldone:
     mov     x0, x3          // Return original dst
     ret
-END_FUNC(memset)
+ASM_FUNC_END(memset)

@@ -24,6 +24,7 @@
         "smp.h": "c",
         "vars.h": "c",
         "machine.h": "c",
-        "lock.h": "c"
+        "lock.h": "c",
+        "page_table.h": "c"
     }
 }

@@ -1,10 +1,11 @@
 #include <asm.h>
 
 /*
+ * include/mm/mm.h
  * void *memcpy(void *dst, const void *src, size_t size)
  * aarch64 NEON optimized memcpy
  */
-BEGIN_FUNC(memcpy)
+ASM_FUNC_BEGIN(memcpy)
     mov     x3, x0          // Save original dst
 
     // Handle small copies (<= 128 bytes) with simple loop
@@ -55,4 +56,4 @@ BEGIN_FUNC(memcpy)
 .Ldone:
     mov     x0, x3          // Return original dst
     ret
-END_FUNC(memcpy)
+ASM_FUNC_END(memcpy)

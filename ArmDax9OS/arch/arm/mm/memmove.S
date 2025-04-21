@@ -1,10 +1,11 @@
 #include <asm.h>
 
 /*
+ * include/mm/mm.h
  * void *memmove(void *dst, const void *src, size_t size)
  * aarch64 NEON optimized memmove (handles overlapping regions)
  */
-BEGIN_FUNC(memmove)
+ASM_FUNC_BEGIN(memmove)
     mov     x3, x0          // Save original dst
     cmp     x0, x1
     b.eq    .Ldone          // dst == src, nothing to do
@@ -109,4 +110,4 @@ BEGIN_FUNC(memmove)
 .Ldone:
     mov     x0, x3          // Return original dst
     ret
-END_FUNC(memmove)
+ASM_FUNC_END(memmove)

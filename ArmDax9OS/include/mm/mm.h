@@ -19,22 +19,21 @@ void *mm_get_virt_addr(void *paddr);
 
 /* 地址空间检查 */
 //是否是用户空间地址
-static inline bool is_user_addr(vaddr_t vaddr){
+static inline bool_ is_user_addr(vaddr_t vaddr){
     return vaddr < KBASE;
 }
 //是否是内核空间地址
-static inline bool is_kernel_addr(vaddr_t vaddr){
+static inline bool_ is_kernel_addr(vaddr_t vaddr){
     return vaddr > KBASE;
 }
 //给定地址与size检查这片范围地址是否处于用户空间地址
-static inline bool is_user_addr_range(vaddr_t vaddr,u64 size){
+static inline bool_ is_user_addr_range(vaddr_t vaddr,u64 size){
     return (vaddr + size >= vaddr) && is_user_addr(vaddr + size);
 }
 
-void memcpy(void *dst, const void *src, size_t size);
-void memmove(void *dst, const void *src, size_t size);
-
-void memset(void *dst, char ch, size_t size);
+extern void memcpy(void *dst, const void *src, size_t size);
+extern void memmove(void *dst, const void *src, size_t size);
+extern void memset(void *dst, char ch, size_t size);
 
 /* 内存统计信息 */
 struct mm_stats {

@@ -1,15 +1,15 @@
-#include "arch/arm/arch/mm/page_table.h"
-#include "common/macro.h"
-#include "mm/slab.h"
-#include "arch/arm/arch/sync.h"
-
+#include <arch/arm/arch/mm/page_table.h>
+#include <common/macro.h>
+#include <mm/slab.h>
+#include <arch/arm/arch/sync.h>
+#include <common/types.h>
+#include <mm/mm.h>
 #define PAGE_MASK (~(PAGE_SIZE - 1))
 
 /* 设置TTBR0寄存器 */
-void set_ttbr0(u64 pgd) {
-    asm volatile("msr ttbr0_el1, %0" : : "r"(pgd));
-    asm volatile("isb");
-}
+extern void set_ttbr0_el1(paddr_t);
+/* 获取TTBR0寄存器值 */
+extern paddr_t get_ttbr0_el1(void);
 
 /* 获取下一级页表页 */
 ptp_t *get_next_ptp(ptp_t *current_ptp, u64 index) {
@@ -25,7 +25,7 @@ ptp_t *get_next_ptp(ptp_t *current_ptp, u64 index) {
 
 /* 查询虚拟地址映射 */
 pte_t *find_pte(u64 vaddr) {
-    ptp_t *pgd = (ptp_t *)(read_sysreg(ttbr0_el1) & PAGE_MASK;
+    ptp_t *pgd = (ptp_t *)(get_ttbr0_el1() & PAGE_MASK);
     if (!pgd) return NULL;
 
     ptp_t *pud = get_next_ptp(pgd, pgd_index(vaddr));
@@ -42,7 +42,7 @@ pte_t *find_pte(u64 vaddr) {
 
 /* 映射4KB页范围 */
 int map_4k_page(u64 vaddr, u64 paddr, u64 attr) {
-    ptp_t *pgd = (ptp_t *)(read_sysreg(ttbr0_el1) & PAGE_MASK;
+    ptp_t *pgd = (ptp_t *)(get_ttbr0_el1() & PAGE_MASK);
     if (!pgd) return -1;
 
     ptp_t *pud = get_next_ptp(pgd, pgd_index(vaddr));
@@ -86,7 +86,7 @@ int unmap_4k_page(u64 vaddr) {
 
 /* 映射2MB大页范围 */
 int map_2m_page(u64 vaddr, u64 paddr, u64 attr) {
-    ptp_t *pgd = (ptp_t *)(read_sysreg(ttbr0_el1) & PAGE_MASK);
+    ptp_t *pgd = (ptp_t *)(get_ttbr0_el1() & PAGE_MASK);
     if (!pgd) return -1;
 
     ptp_t *pud = get_next_ptp(pgd, pgd_index(vaddr));
@@ -112,7 +112,7 @@ int map_2m_page(u64 vaddr, u64 paddr, u64 attr) {
 
 /* 取消映射2MB大页范围 */
 int unmap_2m_page(u64 vaddr) {
-    ptp_t *pgd = (ptp_t *)(read_sysreg(ttbr0_el1) & PAGE_MASK);
+    ptp_t *pgd = (ptp_t *)(get_ttbr0_el1() & PAGE_MASK);
     if (!pgd) return -1;
 
     ptp_t *pud = get_next_ptp(pgd, pgd_index(vaddr));
@@ -127,6 +127,10 @@ int unmap_2m_page(u64 vaddr) {
 
     pte->value = 0;
     return 0;
+}
+void set_page_table(paddr_t pgtbl)
+{
+    set_ttbr0_el1(pgtbl);
 }
 
 /* 设置PTE标志位 */
@@ -151,5 +155,8 @@ static void free_ptp_recursive(ptp_t *ptp, int level) {
 
 /* 释放整个页表 */
 void free_page_table(ptp_t *ptp) {
+    if (!ptp) {
+        ptp = (ptp_t *)(get_ttbr0_el1() & PAGE_MASK);
+    }
     free_ptp_recursive(ptp, 0);
 }
