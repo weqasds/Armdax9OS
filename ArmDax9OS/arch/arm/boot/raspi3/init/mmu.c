@@ -1,6 +1,11 @@
 /*
     配置并实现mmu
 */
+#include "mmu.h"
+#include "const.h"
+typedef unsigned long long u64;
+typedef unsigned int u32;
 
-#include <arch/arm/include/mmu.h>
-#include <include/common/asm.h>
+
+
+void init_boot_pt(void){}

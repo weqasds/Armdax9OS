@@ -29,6 +29,18 @@
         "registers.h": "c",
         "ipi.h": "c",
         "irq_num.h": "c",
-        "irq_entry.h": "c"
-    }
+        "irq_entry.h": "c",
+        "const.h": "c",
+        "uart.h": "c",
+        "init.h": "c",
+        "peripherals.h": "c",
+        "tools.h": "c"
+    },
+    "github.copilot.enable": {
+        "*": false,
+        "plaintext": false,
+        "markdown": false,
+        "scminput": false
+    },
+    "C_Cpp.errorSquiggles": "enabled"
 }

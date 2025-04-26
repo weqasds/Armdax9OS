@@ -1,11 +1,12 @@
 /*
 存放各种arm常量
 */
-#ifndef CONST_H
-#define CONST_H
+#pragma once
 //定义初始栈大小
 #define INIT_STACK_SIZE 0x2000
 #define KENERAL_VADDR 0xffffff0000000000
+#define SZ_16K 0x4000
+#define SZ_64K 0x10000
 #define CONFIG_ARM64_TEXT_OFFSET 1
 #define CONFIG_RASPBERRY_TEXT_OFFSET 2
 #define CONFIG_QEMU_ARM64_TEXT_OFFSET 3
@@ -27,4 +28,3 @@
 #define DWARF_DEBUG \
         .debug  0 :{ *(.debug) } \
         .line   0
-#endif
