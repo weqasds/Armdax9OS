@@ -34,7 +34,11 @@
         "uart.h": "c",
         "init.h": "c",
         "peripherals.h": "c",
-        "tools.h": "c"
+        "tools.h": "c",
+        "kprintf.h": "c",
+        "sched.h": "c",
+        "printf.h": "c",
+        "list.h": "c"
     },
     "github.copilot.enable": {
         "*": false,

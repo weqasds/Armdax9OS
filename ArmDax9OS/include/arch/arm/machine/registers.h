@@ -172,31 +172,12 @@ typedef enum {
     REG_X28=28, /* 0xe0 */ 
     REG_X29=29, /* 0xe8 */
     REG_X30=30, /* 0xf0 *///也是REG_LR链接寄存器
-    REG_SP_EL0,        // 栈指针
-    REG_SP_EL1,        // 栈指针
-    // 系统寄存器
-    REG_SPSR_EL1,      // 程序状态寄存器
-    REG_ELR_EL1,       // 异常链接寄存器
-    REG_SCTLR_EL1,     // 系统控制寄存器
-    REG_TTBR0,         // 页表基址寄存器0
-    REG_TTBR1,         // 页表基址寄存器1
-    REG_ESR_EL1,       // 异常状态寄存器
-    REG_FAR_EL1,       // 错误地址寄存器
-    
-    
+    REG_SP,        // 栈指针
+    REG_SPSR,      // 程序状态寄存器
+    REG_ELR_EL1,   // 异常链接寄存器
 } reg_enum_t;
-#define REG_COUNT (39)          // 寄存器总数
-/* 寄存器上下文结构(用于上下文保存) */
-typedef struct {
-    u64 x[31];         // X0-X30寄存器
-    u64 sp;            // 栈指针
-    u64 pc;            // 程序计数器
-    u64 spsr;          // 程序状态寄存器
-    u64 elr;           // 异常链接寄存器
-    u64 sctlr;         // 系统控制寄存器
-    u64 ttbr0;         // 页表基址寄存器0
-    u64 ttbr1;         // 页表基址寄存器1
-} cpu_context_t;
+#define REG_COUNT (34)          // 寄存器总数
+
 
 /* 寄存器访问接口 */
 #define read_sysreg(reg) ({                         \
@@ -215,13 +196,6 @@ typedef struct {
 #define READ_ELR_EL1()      read_sysreg(elr_el1)
 #define WRITE_ELR_EL1(v)    write_sysreg(elr_el1, v)
 
-/* 获取当前CPU核心ID */
-static inline u32 get_cpuid(void)
-{
-    u64 mpidr;
-    __asm__ volatile("mrs %0, mpidr_el1" : "=r"(mpidr));
-    return (mpidr & 0x3); // 返回低2位作为核心ID
-}
 
 /* SMP启动相关寄存器 */
 #define __smp_up_entry      "S3_1_C15_C2_0"  // CPU启动入口地址寄存器

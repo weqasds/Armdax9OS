@@ -5,18 +5,22 @@
 #include <arch/arm/plat/raspi3/machine.h>
 #include<common/vars.h>
 #include<irq/irq.h>
+#include <sched/sched.h>
+ALIGN(STACK_ALIGNMENT);
 char kernel_stack[PLAT_CPU_NUM][KERNEL_STACK_SIZE];
 
 
 /// @brief 内核启动入口
 /// @param bootflag 
-void main(paddr_t bootflag){}
+void main(paddr_t bootflag){
+
+}
 
 /* 从核启动入口函数 */
 void secondary_start(void)
 {
     // 设置当前核心状态为运行
-    int cpuid = get_cpuid();
+    int cpuid = get_cpu_id();
     cpu_status[cpuid] = cpu_run;
 
     // 初始化核心本地存储

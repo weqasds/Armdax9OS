@@ -1,3 +1,4 @@
+//中断入口头文件
 #pragma once
 #include<common/types.h>
 
@@ -26,6 +27,6 @@
 void set_exception_vector(void);
 void enable_irq(void);
 void disable_irq(void);
-/* fault handlers */
+/* fault handlers 页错误函数 */
 void do_page_fault(u64 esr, u64 fault_addr);
 #endif /* __ASM__ */

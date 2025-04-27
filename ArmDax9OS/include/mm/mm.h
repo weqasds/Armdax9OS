@@ -54,3 +54,6 @@ void mm_invalidate_tlb(void *vaddr, size_t size);
 void mm_flush_dcache(void *addr, size_t size);
 void mm_invalidate_icache(void *addr, size_t size);
 void mm_flush_dcache_all(void);
+
+
+void set_page_table(paddr_t pgtbl);

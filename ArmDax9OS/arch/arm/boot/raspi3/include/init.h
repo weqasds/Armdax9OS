@@ -5,7 +5,7 @@ extern void init_boot_pt(void);
 
 //in arch/arm/head.S
 extern void start_kernel(void* boot_flag);
-extern void secondary_entry(int cpu_id);
+extern void secondary_cpu_entry(int cpu_id);
 //bss段开始位置
 extern char _bss_start;
 //bss段结束位置

@@ -28,7 +28,10 @@
 #define PTE_SH_NONE       (0UL << 8)    // 不可共享
 
 /* 页表层级相关宏 */
-#define PAGE_SHIFT        12
+#define PAGE_SHIFT 12
+/* PFN mask for 48-bit address space (bits [47:12]) */
+#define PTE_PFN_MASK    (0x0000FFFFFFFFF000ULL)
+#define PTE_PFN_MASK    ((1ULL << 48) - 1) & ~((1ULL << 12) - 1)
 #define PAGE_SIZE        (1UL << PAGE_SHIFT)
 #define PMD_SHIFT        21
 #define PUD_SHIFT        30
@@ -130,22 +133,17 @@ typedef struct {
 
 /* 页表操作函数声明 */
 //pgtbl: page table 
-void set_ttbr0_el1(paddr_t pgtbl);
 
 /*未来实现*/
-void set_ttbr1_el1(paddr_t pgtbl);
-void set_ttbr0_el2(paddr_t pgtbl);
-void set_ttbr0_el3(paddr_t pgtbl);
+//void set_ttbr1_el1(paddr_t pgtbl);
+//void set_ttbr0_el2(paddr_t pgtbl);
+//void set_ttbr0_el3(paddr_t pgtbl);
 
 
 ptp_t *get_next_ptp(ptp_t *current_ptp, u64 index);
 pte_t *find_pte(u64 vaddr);
 
-int map_4k_page(u64 vaddr, u64 paddr, u64 attr);
-int unmap_4k_page(u64 vaddr);
-int map_2m_page(u64 vaddr, u64 paddr, u64 attr);
-int unmap_2m_page(u64 vaddr);
-
-void set_page_table(paddr_t pgtbl);
-void set_pte_flags(pte_t *pte, u64 flags);
+void set_pte_flags_4k(pte_t *pte, u64 flags);
+void set_pte_flags_2m(pte_t *pte, u64 flags);
 void free_page_table(ptp_t *ptp);
+

@@ -1,15 +1,26 @@
 #include <arch/arm/mm/page_table.h>
+#include <arch/arm/sync.h>
+#include <arch/arm/mmu.h>
 #include <common/macro.h>
 #include <mm/slab.h>
 #include <arch/arm/sync.h>
 #include <common/types.h>
 #include <mm/mm.h>
+#include <arch/arm/mmu.h>
 #define PAGE_MASK (~(PAGE_SIZE - 1))
 
 /* 设置TTBR0寄存器 */
+//in arch/arm/mm/page_table.S
 extern void set_ttbr0_el1(paddr_t);
 /* 获取TTBR0寄存器值 */
+//in arch/arm/mm/page_table.S
 extern paddr_t get_ttbr0_el1(void);
+
+
+void set_page_table(paddr_t pgtbl)
+{
+    set_ttbr0_el1(pgtbl);
+}
 
 /* 获取下一级页表页 */
 ptp_t *get_next_ptp(ptp_t *current_ptp, u64 index) {
@@ -128,15 +139,28 @@ int unmap_2m_page(u64 vaddr) {
     pte->value = 0;
     return 0;
 }
-void set_page_table(paddr_t pgtbl)
-{
-    set_ttbr0_el1(pgtbl);
-}
 
-/* 设置PTE标志位 */
-void set_pte_flags(pte_t *pte, u64 flags) {
+
+/* 设置PTE标志位(4k) */
+void set_pte_flags_4k(pte_t *pte, u64 flags) {
     if (!pte) return;
     pte->value |= flags;
+}
+
+/* 设置PTE标志位(2m) */
+void set_pte_flags_2m(pte_t *pte, u64 flags) {
+    if (!pte || !(pte->value & PTE_VALID)) return;
+    
+    // 确保设置BLOCK类型并清除TABLE类型
+    flags |= PTE_BLOCK;
+    flags &= ~PTE_TABLE;
+    
+    // 原子修改标志位
+    pte->value = (pte->value & (PTE_PFN_MASK | PTE_VALID)) | flags;
+    
+    // 内存屏障保证修改立即可见
+    dsb(ishst);
+    isb();
 }
 
 /* 递归释放页表 */
