@@ -92,3 +92,6 @@ extern struct thread_sched_ops rr_thread;
 /// @brief 优先级调度策略
 extern struct process_sched_ops prio_process;
 extern struct thread_sched_ops prio_thread;
+/// @brief 基于优先级的fifo调度策略
+extern struct process_shced_ops prio_fifo_process;
+extern struct thread_sched_ops prio_fifo_thread;

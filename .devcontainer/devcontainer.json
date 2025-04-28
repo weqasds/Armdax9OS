@@ -13,12 +13,20 @@
     "customizations": {
         "vscode": {
             "extensions": [
-            "ms-vscode.cpptools",
-            "ms-vscode.cmake-tools",
-            "marus25.cortex-debug",
-            "dan-c-underwood.arm"
+                "ms-vscode.cpptools",
+                "ms-vscode.cmake-tools",
+                "marus25.cortex-debug",
+                "dan-c-underwood.arm"
             ]
         }
     },
+    "containerEnv": {
+        "HTTP_PROXY": "http://host.docker.internal:7890",
+        "HTTPS_PROXY": "http://host.docker.internal:7890",
+        "NO_PROXY": "localhost,127.0.0.1,::1"
+    },
+    "runArgs": [
+        "--network=host"
+    ],
     "remoteUser": "weqasds"
 }

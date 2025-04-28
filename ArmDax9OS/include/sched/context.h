@@ -3,7 +3,7 @@
 #include <common/types.h>
 #include <sched/sched.h>
 #include <mm/vmspace.h>
-
+#include <common/list.h>
 /// @brief 线程调度上下文
 typedef struct thread_sched_context
 {
@@ -20,7 +20,7 @@ typedef struct process_sched_context {
 
 
 
-
+/// @brief 进程上下文结构
 struct process_context
 {
     /// @brief 进程寄存器上下文结构
@@ -29,9 +29,12 @@ struct process_context
     process_sched_ctx_t *psc;
     /// @brief pid
     pid_t pid;
-    /// @brief 地址空间id
-    struct vmspace space;
-};
+    /// @brief 进程类型
+    u32 process_type;
+    /// @brief 进程状态
+    u32 process_state;
+
+}ALIGN(64);
 
 struct thread_context
 {
