@@ -38,7 +38,11 @@
         "kprintf.h": "c",
         "sched.h": "c",
         "printf.h": "c",
-        "list.h": "c"
+        "list.h": "c",
+        "random": "cpp",
+        "limits": "cpp",
+        "buddy.h": "c",
+        "memory.h": "c"
     },
     "github.copilot.enable": {
         "*": false,

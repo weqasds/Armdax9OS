@@ -46,9 +46,11 @@ struct vmspace
     /// @brief 页面锁
     struct spin_lock pgtbl_lock;
 
+    /// @brief 历史CPU
     unsigned char history_cpus[PLAT_CPU_NUM];
 
     struct vmregion *heap_boundary_vmr;
+    
     long rss;
 
 };

@@ -27,8 +27,6 @@ struct process_context
     arch_process_context_t p_context;
     /// @brief 进程调度上下文
     process_sched_ctx_t *psc;
-    /// @brief pid
-    pid_t pid;
     /// @brief 进程类型
     u32 process_type;
     /// @brief 进程状态
