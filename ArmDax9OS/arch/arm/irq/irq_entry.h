@@ -27,6 +27,8 @@
 void set_exception_vector(void);
 void enable_irq(void);
 void disable_irq(void);
+u32 save_irq(void);
+void restore_irq(u32 flags);
 /* fault handlers 页错误函数 */
 void do_page_fault(u64 esr, u64 fault_addr);
 #endif /* __ASM__ */

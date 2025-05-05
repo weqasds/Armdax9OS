@@ -1,19 +1,35 @@
+#include <sched/sched.h>
+#include<common/kprintf.h>
+#include<common/vars.h>
+#include<common/macro.h>
 #include<common/types.h>
 #include<common/lock.h>
-#include<common/kprintf.h>
-#include<common/types.h> 
-#include <arch/arm/plat/raspi3/machine.h>
-#include<common/vars.h>
+#include<arch/arm/machine/smp.h>
+#include<arch/arm/machine/pmu.h>
+#include<arch/arm/mm/page_table.h>
+#include<mm/mm.h>
+#include<lib/uart.h>
+#include<arch/arm/plat/raspi3/machine.h>
 #include<irq/irq.h>
-#include <sched/sched.h>
+#include<object/object.h>
 ALIGN(STACK_ALIGNMENT);
 char kernel_stack[PLAT_CPU_NUM][KERNEL_STACK_SIZE];
 
 
 /// @brief 内核启动入口
-/// @param bootflag 
-void main(paddr_t bootflag){
+/// @param bootflag
+void main(paddr_t bootflag)
+{
+    u32 ret=0;
+    kernel_lock_init();
+    kinfo("[Arm9daxOS] lock init finished\n");
+    BUG_ON(ret != 0);
 
+    /* Init uart: no need to init the uart again */
+    uart_init();
+    kinfo("[Arm9daxOS] uart init finished\n");
+    mm_init();
+    arch_irq_init();
 }
 
 /* 从核启动入口函数 */

@@ -136,3 +136,10 @@ int read_seqretry(seq_lock *lock, u32 seq);
 void completion_init(completion *comp);
 void wait_for_completion(completion *comp);
 void complete(completion *comp);
+
+
+//全局锁代码
+extern struct spin_lock big_kernel_lock;
+void kernel_lock_init(void);
+void lock_kernel(void);
+void unlock_kernel(void);

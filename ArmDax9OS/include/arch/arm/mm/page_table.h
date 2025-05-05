@@ -140,7 +140,7 @@ typedef struct {
 //void set_ttbr0_el3(paddr_t pgtbl);
 
 
-ptp_t *get_next_ptp(ptp_t *current_ptp, u64 index);
+int get_next_ptp(ptp_t *current_ptp, u64 index, vaddr_t va, ptp_t **next_ptp, pte_t **pte, bool alloc);
 pte_t *find_pte(u64 vaddr);
 
 void set_pte_flags_4k(pte_t *pte, u64 flags);

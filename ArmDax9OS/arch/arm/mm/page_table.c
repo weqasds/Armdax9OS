@@ -23,7 +23,8 @@ void set_page_table(paddr_t pgtbl)
 }
 
 /* 获取下一级页表页 */
-ptp_t *get_next_ptp(ptp_t *current_ptp, u64 index) {
+int get_next_ptp(ptp_t *current_ptp, u64 index, vaddr_t va, ptp_t **next_ptp, pte_t **pte, bool alloc)
+{
     if (!current_ptp || index >= PTRS_PER_PTE)
         return NULL;
 

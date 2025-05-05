@@ -37,7 +37,8 @@ static inline void delay(unsigned int cnt){
     while(cnt != 0) cnt--;
 }
 
-void uart_init(void){
+void uart_init(void)
+{
     // 配置GPIO14和GPIO15为ALT5功能
     u32 selector = early_get32(GPFSEL1);
     selector &= ~(7 << 12); // GPIO14

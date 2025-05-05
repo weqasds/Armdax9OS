@@ -42,7 +42,10 @@
         "random": "cpp",
         "limits": "cpp",
         "buddy.h": "c",
-        "memory.h": "c"
+        "memory.h": "c",
+        "object.h": "c",
+        "pmu.h": "c",
+        "esr.h": "c"
     },
     "github.copilot.enable": {
         "*": false,

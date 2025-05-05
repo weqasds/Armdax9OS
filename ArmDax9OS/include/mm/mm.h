@@ -10,6 +10,7 @@
 
 /* 架构相关内存初始化 */
 void arch_mm_init(void);
+void mm_init(void);
 
 /* 内存管理核心接口 */
 void *mm_alloc_pages(u64 order);

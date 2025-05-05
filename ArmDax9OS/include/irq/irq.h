@@ -11,16 +11,15 @@ typedef void (*irq_handler_t)(int irq, void *regs, void *arg);
 // 设置异常向量表基地址
 void set_exception_vector_base(u64 base_addr);
 
-// 中断使能/禁用
-void arch_irq_enable(void);
-void arch_irq_disable(void);
-u32 arch_irq_save(void);
-void arch_irq_restore(u32 flags);
 
 // 上下文保存恢复
 struct pt_regs;
 void save_processor_state(struct pt_regs *regs);
 void restore_processor_state(struct pt_regs *regs);
+
+void arch_irq_init(void);
+void arch_irq_init_per_cpu(void);
+void eret_to_thread(u64 sp);
 
 /* 平台相关接口 (BCM2837) */
 // 中断控制器初始化
@@ -30,10 +29,13 @@ void plat_irq_controller_init(void);
 void plat_route_irq(u32 irq_num, u32 cpu_mask);
 void plat_enable_irq(u32 irq_num);
 void plat_disable_irq(u32 irq_num);
+void plat_handle_irq(void); /* in arch/xxx/plat/xxx/irq/irq.c */
 
 // 本地定时器中断
 void plat_local_timer_init(u32 freq);
 void plat_local_timer_handler(void);
+void plat_enable_timer(void);
+void plat_disable_timer(void);
 
 /* SMP相关中断接口 */
 // 核间中断处理
@@ -58,10 +60,7 @@ void schedule_in_irq(struct pt_regs *regs);
 #define HANDLE_USER   1
 extern u8 irq_handle_type[MAX_IRQ_NUM];
 
-// 中断注册接口
-int request_irq(u32 irq_num, irq_handler_t handler, 
-               u32 flags, const char *name, void *arg);
-void free_irq(u32 irq_num);
+
 
 // IPI核间中断接口
 void send_ipi(u32 cpu_mask, u32 ipi_type);

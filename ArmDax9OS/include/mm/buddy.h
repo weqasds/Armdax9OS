@@ -10,9 +10,9 @@
 #define BUDDY_PAGE_SIZE (0x1000)
 #define BUDDY_MAX_ORDER (14UL)
 #define BUDDY_PAGE_SIZE_ORDER (12)
-#define PHYS_MEM_POOLS 3
+#define PHYS_MEM_POOLS 1
 extern struct phys_mem_pool global_mem_pool[PHYS_MEM_POOLS];
-extern paddr_t physmene_map[PHYS_MEM_POOLS][2];
+extern paddr_t physmem_map[PHYS_MEM_POOLS][2];
 extern int physmem_map_num;
 
 struct page
