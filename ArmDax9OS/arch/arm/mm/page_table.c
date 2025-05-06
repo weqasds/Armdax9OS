@@ -7,8 +7,14 @@
 #include <common/types.h>
 #include <mm/mm.h>
 #include <arch/arm/mmu.h>
+#include <common/error.h>
 #define PAGE_MASK (~(PAGE_SIZE - 1))
+#define GET_PADDR_IN_PTE(entry) \
+        (((u64)entry->table.addr) << PAGE_SHIFT)
+#define GET_NEXT_PTP(entry) phys_to_virt(GET_PADDR_IN_PTE(entry))
 
+#define NORMAL_PTP (0)
+#define BLOCK_PTP  (1)
 /* 设置TTBR0寄存器 */
 //in arch/arm/mm/page_table.S
 extern void set_ttbr0_el1(paddr_t);
@@ -23,16 +29,64 @@ void set_page_table(paddr_t pgtbl)
 }
 
 /* 获取下一级页表页 */
-int get_next_ptp(ptp_t *current_ptp, u64 index, vaddr_t va, ptp_t **next_ptp, pte_t **pte, bool alloc)
+int get_next_ptp(ptp_t *current_ptp, u64 index, vaddr_t va, ptp_t **next_ptp, pte_t **pte, bool_ alloc)
 {
-    if (!current_ptp || index >= PTRS_PER_PTE)
-        return NULL;
+    u32 index = 0;
+    pte_t *entry;
+    if (current_ptp == NULL)
+                return -ENOMAPPING;
+    switch (index)
+    {
+    case 0:
+        index = GET_L0_INDEX(va);
+        break;
+    case 1:
+        index = GET_L1_INDEX(va);
+        break;
+    case 2:
+        index = GET_L2_INDEX(va);
+        break;
+    case 3:
+        index = GET_L3_INDEX(va);
+        break;
+    default:
+        BUG_ON(1);
+    }
+    entry=&(current_ptp->entries[index]);
+    if (IS_PTE_INVALID(entry->value)) {
+        if (alloc == false)
+        {
+            return -ENOMAPPING;
+        }
+        else
+        {
+            /* alloc a new page table page */
+            ptp_t *new_ptp;
+            paddr_t new_ptp_paddr;
+            pte_t new_pte_val;
 
-    pte_t *pte = &current_ptp->entries[index];
-    if (!(pte->value & PTE_VALID) || !(pte->value & PTE_TABLE))
-        return NULL;
+            /* alloc a single physical page as a new page table page
+             */
+            new_ptp = get_pages(0);
+            BUG_ON(new_ptp == NULL);
+            memset((void *)new_ptp, 0, PAGE_SIZE);
+            new_ptp_paddr = virt_to_phys((vaddr_t)new_ptp);
 
-    return (ptp_t *)(pte->table.addr << PAGE_SHIFT);
+            new_pte_val.value = 0;
+            new_pte_val.table.valid = 1;
+            new_pte_val.table.type = 1;
+            new_pte_val.table.addr = new_ptp_paddr >> PAGE_SHIFT;
+
+            /* same effect as: cur_ptp->ent[index] = new_pte_val; */
+            entry->value = new_pte_val.value;
+        }
+    }
+    *next_ptp = (ptp_t *)GET_NEXT_PTP(entry);
+        *pte = entry;
+        if (IS_PTE_TABLE(entry->value))
+                return NORMAL_PTP;
+        else
+                return BLOCK_PTP;
 }
 
 /* 查询虚拟地址映射 */

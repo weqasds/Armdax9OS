@@ -25,7 +25,7 @@ typedef struct mutex_lock{
     struct spin_lock lock;
     struct list_head wait_list;
     atomic_t owner;
-#ifdef CONFIG_DEBUG-MUTEXLOCK
+#ifdef CONFIG_DEBUG_MUTEXLOCK
     const u8 *name;
     void* magic;
 #endif

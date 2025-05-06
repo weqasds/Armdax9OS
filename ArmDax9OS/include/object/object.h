@@ -6,6 +6,28 @@
 #include <sched/context.h>
 #include <arch/arm/machine/smp.h>
 #include <common/lock.h>
+#include <common/types.h>
+
+/* 进程/线程ID类型 */
+typedef s64 tid_t;
+typedef s64 capid_t;
+
+/* 进程状态结构 */
+struct proc_status {
+    pid_t pid;
+    tid_t main_tid;
+    u32 thread_count;
+    u32 state;
+    u64 memory_usage;
+};
+
+/* 线程状态结构 */
+struct thread_status {
+    tid_t tid;
+    pid_t pid;
+    u32 state;
+    u32 cpu_affinity;
+};
 extern struct process *current_process[PLAT_CPU_NUM];
 extern struct process idle_process[PLAT_CPU_NUM];
 #define current_process (current_process[get_gpu_id()])
@@ -47,8 +69,26 @@ struct thread
     /// @brief 上一个运行线程
     struct thread *prev_thread;
 };
-
+/* 根进程初始化 */
 void create_root_process(void);
-void switch_process_vmspace_to(struct process *); 
+void switch_process_vmspace_to(struct process *);
+
+/* 进程管理接口 */
+int proc_create(pid_t *pid, vaddr_t entry, vaddr_t stack, size_t stack_size);
+void proc_exit(int exit_code);
+int proc_wait(pid_t pid, int *exit_status);
+int proc_kill(pid_t pid);
+int proc_status(pid_t pid, struct proc_status *status);
+
+/* 线程管理接口 */
+int thread_create(tid_t *tid, vaddr_t entry, vaddr_t stack, size_t stack_size);
+void thread_exit(int exit_code);
+int thread_join(tid_t tid, int *exit_status);
+int thread_status(tid_t tid, struct thread_status *status);
+
+
+/* 特殊线程操作 */
+int clone_thread(tid_t *tid, struct thread_context *ctx, vaddr_t stack);
+
 
 

@@ -27,6 +27,17 @@
 #define PTE_SH_OUTER      (2UL << 8)    // 外部可共享
 #define PTE_SH_NONE       (0UL << 8)    // 不可共享
 
+
+/* Access flag bit. */
+#define AARCH64_MMU_ATTR_PAGE_AF_ACCESSED (1)
+
+/* Present (valid) bit. */
+#define AARCH64_MMU_PTE_INVALID_MASK (1 << 0)
+/* Table bit: whether the next level is aonther pte or physical memory page. */
+#define AARCH64_MMU_PTE_TABLE_MASK (1 << 1)
+#define IS_PTE_INVALID(pte)        (!((pte)&AARCH64_MMU_PTE_INVALID_MASK))
+#define IS_PTE_TABLE(pte)          (!!((pte)&AARCH64_MMU_PTE_TABLE_MASK))
+
 /* 页表层级相关宏 */
 #define PAGE_SHIFT 12
 /* PFN mask for 48-bit address space (bits [47:12]) */
@@ -91,20 +102,24 @@ typedef union {
     } l1_block;                // 1GB块描述符
 
     struct {
-        u64 valid:1;
-        u64 type:1;
-        u64 attr_index:3;
-        u64 ns:1;
-        u64 ap:2;
-        u64 sh:2;
-        u64 af:1;
-        u64 ng:1;
-        u64 res0:9;
-        u64 addr:28;      // 2MB物理地址
-        u64 res1:4;
-        u64 pxd:1;
-        u64 cont:1;
-    } l2_block;                // 2MB块描述符
+        u64 valid : 1;       // [0]     页表项是否有效
+        u64 type : 1;        // [1]     0=block, 1=table（本层为 block）
+        u64 attr_index : 3;  // [2:4]   MAIR索引（内存类型属性）
+        u64 ns : 1;          // [5]     Non-secure（0=secure, 1=non-secure）
+        u64 ap : 2;          // [6:7]   访问权限（EL0/EL1 可读/写控制）
+        u64 sh : 2;          // [8:9]   Shareability 属性
+        u64 af : 1;          // [10]    Access Flag
+        u64 ng : 1;          // [11]    Not Global bit
+        u64 res0 : 4;        // [12:15] 保留位（SBZ）
+        u64 addr : 28;       // [16:43] Block物理地址[47:21]（对齐 2MB）
+        u64 res1 : 4;        // [44:47] 保留位
+        u64 dbm : 1;         // [51]    Dirty Bit Modifier
+        u64 cont : 1;        // [52]    连续映射
+        u64 pxd : 1;         // [53]    Privileged Execute Never（PXN）
+        u64 uxn : 1;         // [54]    User Execute Never（UXN）
+        u64 pbha : 4;        // [55:58] Page-Based Hardware Attributes
+        u64 res2 : 5;        // [59:63] 保留/忽略位
+    } l2_block;
 
     struct {
         u64 valid:1;
@@ -115,11 +130,15 @@ typedef union {
         u64 sh:2;
         u64 af:1;
         u64 ng:1;
-        u64 res0:9;
+        u64 res0:4;
         u64 addr:28;      // 4KB物理地址
         u64 res1:4;
-        u64 pxd:1;
+        u64 dbm:1;
         u64 cont:1;
+        u64 pxd:1;
+        u64 uxn:1;
+        u64 pbha:1;
+        u64 res2:5;
     } l3_page;                 // 4KB页描述符
 
     u64 value;
@@ -140,7 +159,7 @@ typedef struct {
 //void set_ttbr0_el3(paddr_t pgtbl);
 
 
-int get_next_ptp(ptp_t *current_ptp, u64 index, vaddr_t va, ptp_t **next_ptp, pte_t **pte, bool alloc);
+int get_next_ptp(ptp_t *current_ptp, u64 index, vaddr_t va, ptp_t **next_ptp, pte_t **pte, bool_ alloc);
 pte_t *find_pte(u64 vaddr);
 
 void set_pte_flags_4k(pte_t *pte, u64 flags);

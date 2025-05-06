@@ -18,12 +18,13 @@ void save_processor_state(struct pt_regs *regs);
 void restore_processor_state(struct pt_regs *regs);
 
 void arch_irq_init(void);
+// 多核中断初始化
 void arch_irq_init_per_cpu(void);
 void eret_to_thread(u64 sp);
 
 /* 平台相关接口 (BCM2837) */
-// 中断控制器初始化
-void plat_irq_controller_init(void);
+// 平台中断初始化
+void plat_irq_init(void);
 
 // 外设中断配置
 void plat_route_irq(u32 irq_num, u32 cpu_mask);
@@ -41,8 +42,6 @@ void plat_disable_timer(void);
 // 核间中断处理
 void smp_ipi_handler(int ipi_num, struct pt_regs *regs);
 
-// 多核中断初始化
-void smp_irq_init_per_cpu(void);
 
 // 中断负载均衡
 void irq_set_affinity(u32 irq_num, u32 cpu_mask);

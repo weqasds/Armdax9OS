@@ -6,11 +6,11 @@
 /* 内存屏障指令 */
 #define COMPILER_BARRIER() __asm__ volatile("" ::: "memory")
 //指令同步屏障 instruction sync barrier
-#define ARM_ISB() __asm__ volatile("isb" ::: "memory")
+#define isb() __asm__ volatile("isb" ::: "memory")
 //数据内存屏障data memory barrier
-#define ARM_DMB(opt) __asm__ volatile("dmb " #opt ::: "memory")
+#define dmb(opt) __asm__ volatile("dmb " #opt ::: "memory")
 //数据同步屏障data sync barrier
-#define ARM_DSB(opt) __asm__ volatile("dsb " #opt ::: "memory")
+#define dsb(opt) __asm__ volatile("dsb " #opt ::: "memory")
 
 //send event
 #define sev() __asm__ volatile("sev" ::: "memory")
@@ -19,16 +19,16 @@
 //wait interrupt
 #define wfi() __asm__ volatile("wfi" : : : "memory")
 
-#define mb() ARM_DSB(sy)
-#define rmb() ARM_DSB(ld)
-#define wmb() ARM_DSB(st)
+#define mb() dsb(sy)
+#define rmb() dsb(ld)
+#define wmb() dsb(st)
 
-#define smp_mb() ARM_DMB(ish)
-#define smp_rmb() ARM_DMB(ishld)
-#define smp_wmb() ARM_DMB(ishst)
+#define smp_mb() dmb(ish)
+#define smp_rmb() dmb(ishld)
+#define smp_wmb() dmb(ishst)
 
-#define dma_rmb() ARM_DMB(oshld)
-#define dma_wmb() ARM_DMB(oshst)
+#define dma_rmb() dmb(oshld)
+#define dma_wmb() dmb(oshst)
 /* 原子加载/存储 */
 static inline u32 arm_ldar32(volatile u32 *addr) {
     u32 val;

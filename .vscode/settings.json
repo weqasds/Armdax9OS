@@ -45,7 +45,11 @@
         "memory.h": "c",
         "object.h": "c",
         "pmu.h": "c",
-        "esr.h": "c"
+        "esr.h": "c",
+        "kmalloc.h": "c",
+        "mm.h": "c",
+        "syscall_num.h": "c",
+        "cap_group.h": "c"
     },
     "github.copilot.enable": {
         "*": false,
