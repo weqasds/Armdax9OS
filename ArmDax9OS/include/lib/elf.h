@@ -11,7 +11,7 @@
 #define ET_CORE   4
 
 // ELF机器类型
-#define EM_ARM    40
+#define EM_AARCH64 40
 
 // ELF版本
 #define EV_CURRENT 1

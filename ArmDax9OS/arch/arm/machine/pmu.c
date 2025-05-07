@@ -2,7 +2,7 @@
 #include <common/types.h>
 #include <common/macro.h>
 
-// PMU初始化
+// PMU初始化 性能监视器
 void pmu_init(void) {
     u64 pmcr;
     

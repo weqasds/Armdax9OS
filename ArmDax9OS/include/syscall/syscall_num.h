@@ -1,7 +1,7 @@
 #pragma once
 
 //the syscall max nums
-#define NR_SYSCALL 128  // 调整为128个系统调用空间
+#define NR_SYSCALL 256  // 调整为128个系统调用空间
 
 /* Arm v8a 架构基础系统调用号定义 */
 #define SYS_exit              0   // 进程/线程正常退出，释放资源
