@@ -3,12 +3,15 @@
 /*
  * include/mm/mm.h 
  * void *memset(void *dst, int ch, size_t size)
- * aarch64 NEON optimized memset
+ * aarch64 general purpose register optimized memset
  */
 ASM_FUNC_BEGIN(memset)
     mov     x3, x0          // Save original dst
     and     w1, w1, #0xff   // Clear upper bits of char
-    dup     v0.16b, w1      // Fill NEON register
+    orr     w1, w1, w1, lsl #8  // Duplicate byte to 16-bit
+    orr     w1, w1, w1, lsl #16 // Duplicate to 32-bit
+    mov     x4, x1          // Prepare 64-bit pattern
+    orr     x4, x4, x4, lsl #32
 
     // Handle small sets (<= 128 bytes) with simple loop
     cmp     x2, #128
@@ -27,17 +30,17 @@ ASM_FUNC_BEGIN(memset)
     b.ne    .Lhead_loop
 
 .Laligned_dst:
-    // Main set loop with NEON
-    lsr     x4, x2, #7      // x4 = count / 128
-    cbz     x4, .Ltail_set
+    // Main set loop with 64-bit registers
+    lsr     x5, x2, #6      // x5 = count / 64
+    cbz     x5, .Ltail_set
 
-.Lneon_loop:
-    stp     q0, q0, [x0], #32
-    stp     q0, q0, [x0], #32
-    stp     q0, q0, [x0], #32
-    stp     q0, q0, [x0], #32
-    subs    x4, x4, #1
-    b.ne    .Lneon_loop
+.Lset_loop:
+    stp     x4, x4, [x0], #16
+    stp     x4, x4, [x0], #16
+    stp     x4, x4, [x0], #16
+    stp     x4, x4, [x0], #16
+    subs    x5, x5, #1
+    b.ne    .Lset_loop
 
     // Handle remaining bytes (<128)
     and     x2, x2, #127

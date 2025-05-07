@@ -3,7 +3,7 @@
 /*
  * include/mm/mm.h
  * void *memmove(void *dst, const void *src, size_t size)
- * aarch64 NEON optimized memmove (handles overlapping regions)
+ * aarch64 general purpose register optimized memmove (handles overlapping regions)
  */
 ASM_FUNC_BEGIN(memmove)
     mov     x3, x0          // Save original dst
@@ -30,21 +30,21 @@ ASM_FUNC_BEGIN(memmove)
     b.ne    .Lhead_loop
 
 .Laligned_dst:
-    // Main copy loop with NEON
-    lsr     x4, x2, #7      // x4 = count / 128
+    // Main copy loop with 64-bit registers
+    lsr     x4, x2, #6      // x4 = count / 64
     cbz     x4, .Ltail_copy
 
-.Lneon_loop:
-    ldp     q0, q1, [x1], #32
-    ldp     q2, q3, [x1], #32
-    ldp     q4, q5, [x1], #32
-    ldp     q6, q7, [x1], #32
-    stp     q0, q1, [x0], #32
-    stp     q2, q3, [x0], #32
-    stp     q4, q5, [x0], #32
-    stp     q6, q7, [x0], #32
+.Lcopy_loop:
+    ldp     x5, x6, [x1], #16
+    ldp     x7, x8, [x1], #16
+    ldp     x9, x10, [x1], #16
+    ldp     x11, x12, [x1], #16
+    stp     x5, x6, [x0], #16
+    stp     x7, x8, [x0], #16
+    stp     x9, x10, [x0], #16
+    stp     x11, x12, [x0], #16
     subs    x4, x4, #1
-    b.ne    .Lneon_loop
+    b.ne    .Lcopy_loop
 
     // Handle remaining bytes (<128)
     and     x2, x2, #127
@@ -80,21 +80,21 @@ ASM_FUNC_BEGIN(memmove)
     b.ne    .Ltail_loop_back
 
 .Laligned_dst_back:
-    // Main copy loop with NEON
-    lsr     x4, x2, #7      // x4 = count / 128
+    // Main copy loop with 64-bit registers
+    lsr     x4, x2, #6      // x4 = count / 64
     cbz     x4, .Ltail_copy_back
 
-.Lneon_loop_back:
-    ldp     q0, q1, [x1, #-32]!
-    ldp     q2, q3, [x1, #-32]!
-    ldp     q4, q5, [x1, #-32]!
-    ldp     q6, q7, [x1, #-32]!
-    stp     q0, q1, [x0, #-32]!
-    stp     q2, q3, [x0, #-32]!
-    stp     q4, q5, [x0, #-32]!
-    stp     q6, q7, [x0, #-32]!
+.Lcopy_loop_back:
+    ldp     x5, x6, [x1, #-16]!
+    ldp     x7, x8, [x1, #-16]!
+    ldp     x9, x10, [x1, #-16]!
+    ldp     x11, x12, [x1, #-16]!
+    stp     x5, x6, [x0, #-16]!
+    stp     x7, x8, [x0, #-16]!
+    stp     x9, x10, [x0, #-16]!
+    stp     x11, x12, [x0, #-16]!
     subs    x4, x4, #1
-    b.ne    .Lneon_loop_back
+    b.ne    .Lcopy_loop_back
 
     // Handle remaining bytes (<128)
     and     x2, x2, #127
